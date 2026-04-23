@@ -8,7 +8,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBXsweTQ3T2HzIFLPJW5lCgknId85G6kYU",
+  apiKey: "AIzaSyCwY_fD-WN4YQzJQG23Rj1ahJkrNwjSQGM",
   authDomain: "whimsy-84e00.firebaseapp.com",
   projectId: "whimsy-84e00",
   storageBucket: "whimsy-84e00.firebasestorage.app",
@@ -16,6 +16,7 @@ const firebaseConfig = {
   appId: "1:179440001076:web:eb0202ff31dece68afaa61",
   measurementId: "G-6Z2R3BKL78"
 };
+
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
