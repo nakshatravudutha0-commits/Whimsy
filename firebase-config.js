@@ -8,12 +8,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBXsweTQ3T2HzIFLPJW5lCgknId85G6kYU",
+  authDomain: "whimsy-84e00.firebaseapp.com",
+  projectId: "whimsy-84e00",
+  storageBucket: "whimsy-84e00.firebasestorage.app",
+  messagingSenderId: "179440001076",
+  appId: "1:179440001076:web:eb0202ff31dece68afaa61",
+  measurementId: "G-6Z2R3BKL78"
 };
 
 const app = initializeApp(firebaseConfig);
