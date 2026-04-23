@@ -319,7 +319,7 @@
     if (user) {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists() && userDoc.data().username) {
-        window.location.href = 'app.html';
+        window.location.href = 'index.html';
       } else {
         window.location.href = 'setup.html';
       }
