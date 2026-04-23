@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whimsy — Your Birthday Dream Space</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=Sacramento&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush:#F9C8D4;--lilac:#D5C4F0;--mint:#C4EDE0;--butter:#FAF0C8;
+    --sky:#C4DEFA;--peach:#FAD8C4;--rose:#E8A0B0;--lavender:#B8A0DC;
+    --sage:#A0C8B0;--cream:#FFF8F5;--text-dark:#4A3045;
+    --text-mid:#7A6080;--text-light:#B0A0B8;--white:#FFFFFF;
+    --shadow:rgba(180,150,170,0.15);--shadow-lg:rgba(180,150,170,0.25);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+
+  /* LOADING SCREEN */
+  #loading-screen{
+    position:fixed;inset:0;background:var(--cream);z-index:9999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    transition:opacity 0.5s ease;
+  }
+  #loading-screen.hidden{opacity:0;pointer-events:none;}
+  .loading-logo{font-family:'Sacramento',cursive;font-size:52px;color:var(--rose);animation:pulse 1.5s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(0.97)}}
+  .loading-dots{display:flex;gap:6px;}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:var(--lilac);animation:dot-bounce 1.2s ease-in-out infinite;}
+  .loading-dot:nth-child(2){animation-delay:0.2s;background:var(--rose);}
+  .loading-dot:nth-child(3){animation-delay:0.4s;background:var(--mint);}
+  @keyframes dot-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+
+  /* PARTICLES */
+  .particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .particle{position:absolute;border-radius:50%;opacity:0.4;animation:float linear infinite;}
+  @keyframes float{
+    0%{transform:translateY(110vh) rotate(0deg);opacity:0;}
+    10%{opacity:0.4;}90%{opacity:0.4;}
+    100%{transform:translateY(-10vh) rotate(720deg);opacity:0;}
+  }
+  .sparkle{position:absolute;pointer-events:none;animation:sparkle-pop 0.6s ease forwards;}
+  .sparkle::before,.sparkle::after{content:'✦';position:absolute;font-size:12px;color:var(--rose);animation:sparkle-fade 0.6s ease forwards;}
+  .sparkle::after{transform:rotate(45deg);font-size:8px;top:-10px;left:8px;}
+  @keyframes sparkle-pop{0%{transform:scale(0) rotate(0)}50%{transform:scale(1.4) rotate(180deg)}100%{transform:scale(1) rotate(360deg)}}
+  @keyframes sparkle-fade{0%{opacity:1}100%{opacity:0}}
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(255,248,245,0.88);backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(249,200,212,0.4);
+    padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:60px;
+  }
+  .nav-logo{font-family:'Sacramento',cursive;font-size:28px;color:var(--rose);letter-spacing:1px;}
+  .nav-right{display:flex;align-items:center;gap:8px;}
+  .nav-tabs{
+    display:flex;gap:4px;background:rgba(249,200,212,0.2);
+    border-radius:20px;padding:4px;
+  }
+  .nav-tab{
+    border:none;background:none;font-family:'DM Sans',sans-serif;
+    font-size:11px;font-weight:500;color:var(--text-mid);
+    padding:6px 10px;border-radius:16px;cursor:pointer;
+    transition:all 0.25s ease;white-space:nowrap;letter-spacing:0.3px;
+  }
+  .nav-tab.active{background:white;color:var(--text-dark);box-shadow:0 2px 8px var(--shadow);}
+  .nav-tab:hover:not(.active){color:var(--rose);}
+  .nav-avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--blush),var(--lilac));
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;cursor:pointer;
+    box-shadow:0 2px 8px var(--shadow);
+    border:none;
+    transition:all 0.2s;
+    flex-shrink:0;
+  }
+  .nav-avatar:hover{transform:scale(1.1);}
+
+  /* PAGES */
+  .page{display:none;animation:page-in 0.4s ease;position:relative;z-index:1;}
+  .page.active{display:block;}
+  @keyframes page-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* HERO */
+  .hero{position:relative;text-align:center;padding:60px 24px 40px;overflow:hidden;}
+  .hero-blob{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;opacity:0.6;}
+  .hero-blob-1{width:300px;height:300px;background:var(--blush);top:-80px;left:-80px;}
+  .hero-blob-2{width:250px;height:250px;background:var(--lilac);top:-40px;right:-60px;}
+  .hero-blob-3{width:200px;height:200px;background:var(--mint);bottom:-60px;left:50%;transform:translateX(-50%);}
+  .hero-eyebrow{font-size:11px;font-weight:500;color:var(--lavender);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;position:relative;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(32px,8vw,52px);font-weight:600;color:var(--text-dark);line-height:1.2;margin-bottom:16px;position:relative;}
+  .hero h1 em{font-style:italic;color:var(--rose);}
+  .hero-sub{font-size:14px;color:var(--text-mid);line-height:1.7;max-width:300px;margin:0 auto 32px;position:relative;}
+
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,var(--rose),var(--lavender));
+    color:white;border:none;padding:14px 28px;border-radius:50px;
+    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+    cursor:pointer;box-shadow:0 4px 20px rgba(232,160,176,0.4);
+    transition:all 0.3s ease;letter-spacing:0.2px;
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(232,160,176,0.5);}
+  .btn-secondary{
+    display:inline-flex;align-items:center;gap:6px;background:white;
+    color:var(--text-mid);border:1.5px solid rgba(213,196,240,0.6);
+    padding:12px 22px;border-radius:50px;font-family:'DM Sans',sans-serif;
+    font-size:13px;font-weight:500;cursor:pointer;transition:all 0.25s;
+  }
+  .btn-secondary:hover{border-color:var(--lilac);color:var(--lavender);transform:translateY(-1px);}
+
+  /* IDENTITY CARD */
+  .identity-card{
+    margin:0 16px 28px;background:white;border-radius:24px;padding:20px;
+    box-shadow:0 4px 30px var(--shadow);border:1.5px solid rgba(249,200,212,0.3);
+    display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;
+  }
+  .identity-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blush),var(--lilac),var(--mint));}
+  .identity-avatar{
+    width:60px;height:60px;border-radius:50%;
+    background:linear-gradient(135deg,var(--blush),var(--lilac));
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(249,200,212,0.5);
+  }
+  .identity-info h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--text-dark);margin-bottom:4px;}
+  .identity-badge{
+    display:inline-flex;align-items:center;gap:4px;
+    background:linear-gradient(135deg,rgba(249,200,212,0.3),rgba(213,196,240,0.3));
+    border:1px solid rgba(213,196,240,0.5);color:var(--lavender);
+    font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;margin-bottom:6px;
+  }
+  .identity-meta{font-size:11px;color:var(--text-light);}
+  .share-link{
+    margin-top:10px;display:flex;align-items:center;gap:8px;
+    background:rgba(249,200,212,0.15);border:1px solid rgba(249,200,212,0.4);
+    border-radius:10px;padding:7px 10px;
+  }
+  .share-link span{font-size:10px;color:var(--text-light);flex:1;font-family:monospace;}
+  .share-copy{
+    background:none;border:none;color:var(--rose);font-family:'DM Sans',sans-serif;
+    font-size:10px;font-weight:600;cursor:pointer;padding:2px 6px;
+    border-radius:6px;transition:all 0.2s;white-space:nowrap;
+  }
+  .share-copy:hover{background:rgba(249,200,212,0.3);}
+
+  /* SECTION HEADERS */
+  .section-header{padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;}
+  .section-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text-dark);}
+  .section-title span{color:var(--rose);font-style:italic;}
+  .section-action{
+    font-size:12px;color:var(--lavender);font-weight:500;cursor:pointer;
+    background:rgba(213,196,240,0.2);border:none;padding:5px 12px;
+    border-radius:20px;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+  }
+  .section-action:hover{background:rgba(213,196,240,0.4);}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 16px 24px;}
+  .stat-card{
+    background:white;border-radius:16px;padding:14px 12px;text-align:center;
+    box-shadow:0 2px 12px var(--shadow);border:1.5px solid rgba(249,200,212,0.2);
+  }
+  .stat-num{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--rose);line-height:1;margin-bottom:4px;}
+  .stat-label{font-size:10px;color:var(--text-light);font-weight:500;}
+
+  /* WISHLIST */
+  .wishlist-filters{display:flex;gap:8px;padding:0 16px 20px;overflow-x:auto;scrollbar-width:none;}
+  .wishlist-filters::-webkit-scrollbar{display:none;}
+  .filter-chip{
+    flex-shrink:0;background:white;border:1.5px solid rgba(213,196,240,0.4);
+    color:var(--text-mid);font-size:12px;font-weight:500;padding:7px 16px;
+    border-radius:20px;cursor:pointer;transition:all 0.2s;
+    font-family:'DM Sans',sans-serif;white-space:nowrap;
+  }
+  .filter-chip.active{
+    background:linear-gradient(135deg,var(--blush),var(--lilac));
+    border-color:transparent;color:var(--text-dark);
+    box-shadow:0 2px 12px rgba(249,200,212,0.5);
+  }
+  .filter-chip:hover:not(.active){border-color:var(--lilac);color:var(--lavender);}
+
+  .wishlist-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 20px;}
+  .wish-card{
+    background:white;border-radius:20px;overflow:hidden;
+    box-shadow:0 2px 16px var(--shadow);border:1.5px solid rgba(249,200,212,0.2);
+    transition:all 0.3s ease;cursor:pointer;position:relative;
+  }
+  .wish-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px var(--shadow-lg);}
+  .wish-img-placeholder{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:36px;}
+  .wish-img-real{width:100%;aspect-ratio:1;object-fit:cover;}
+  .wish-body{padding:12px;}
+  .wish-category{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+  .cat-dream{color:var(--rose);}
+  .cat-cute{color:var(--lavender);}
+  .cat-essential{color:var(--sage);}
+  .wish-name{font-size:13px;font-weight:500;color:var(--text-dark);margin-bottom:6px;line-height:1.3;}
+  .wish-price{font-size:12px;color:var(--text-light);}
+  .wish-badges{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
+  .wish-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;letter-spacing:0.5px;backdrop-filter:blur(10px);}
+  .badge-reserved{background:rgba(196,237,224,0.9);color:#5A9A80;}
+  .badge-surprise{background:rgba(213,196,240,0.9);color:#8060C0;}
+  .badge-private{background:rgba(200,200,200,0.8);color:#888;}
+  .wish-react{display:flex;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(249,200,212,0.3);}
+  .react-btn{
+    flex:1;background:none;border:none;font-size:14px;cursor:pointer;
+    padding:4px;border-radius:8px;transition:all 0.2s;
+    display:flex;align-items:center;justify-content:center;gap:3px;
+    color:var(--text-light);font-size:11px;font-family:'DM Sans',sans-serif;
+  }
+  .react-btn:hover{background:rgba(249,200,212,0.2);color:var(--rose);}
+  .react-btn.reacted{color:var(--rose);}
+
+  .add-gift-card{
+    border:2px dashed rgba(213,196,240,0.5);border-radius:20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    aspect-ratio:0.85;cursor:pointer;transition:all 0.25s;
+    background:rgba(213,196,240,0.05);color:var(--lavender);gap:8px;
+  }
+  .add-gift-card:hover{border-color:var(--lilac);background:rgba(213,196,240,0.1);transform:scale(1.02);}
+  .add-gift-card .add-icon{font-size:28px;}
+  .add-gift-card span{font-size:12px;font-weight:500;}
+
+  /* QUIZ */
+  .quiz-wrap{padding:0 16px 32px;}
+  .quiz-progress{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+  .quiz-bar{flex:1;height:4px;background:rgba(213,196,240,0.3);border-radius:4px;overflow:hidden;}
+  .quiz-bar-fill{height:100%;background:linear-gradient(90deg,var(--blush),var(--lilac));border-radius:4px;transition:width 0.4s ease;}
+  .quiz-step{font-size:11px;color:var(--text-light);font-weight:500;white-space:nowrap;}
+  .quiz-question{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);margin-bottom:8px;line-height:1.3;}
+  .quiz-sub{font-size:13px;color:var(--text-light);margin-bottom:24px;line-height:1.6;}
+  .quiz-options{display:grid;gap:10px;}
+  .quiz-option{
+    background:white;border:2px solid rgba(213,196,240,0.3);border-radius:16px;
+    padding:14px 16px;cursor:pointer;transition:all 0.25s ease;
+    display:flex;align-items:center;gap:12px;
+    font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);
+    box-shadow:0 2px 8px var(--shadow);
+  }
+  .quiz-option:hover{border-color:var(--lilac);transform:translateX(4px);box-shadow:0 4px 16px var(--shadow-lg);}
+  .quiz-option.selected{border-color:var(--lavender);background:linear-gradient(135deg,rgba(249,200,212,0.15),rgba(213,196,240,0.2));transform:translateX(4px);}
+  .quiz-option-emoji{font-size:22px;}
+  .quiz-option-text{flex:1;}
+  .quiz-option-text strong{display:block;font-weight:500;margin-bottom:2px;}
+  .quiz-option-text small{font-size:11px;color:var(--text-light);}
+  .quiz-check{
+    width:20px;height:20px;border-radius:50%;border:2px solid rgba(213,196,240,0.5);
+    display:flex;align-items:center;justify-content:center;font-size:10px;
+    color:transparent;transition:all 0.2s;flex-shrink:0;
+  }
+  .quiz-option.selected .quiz-check{background:var(--lavender);border-color:var(--lavender);color:white;}
+
+  /* RESULT CARD */
+  .result-card{
+    background:white;border-radius:28px;padding:32px 24px;text-align:center;
+    box-shadow:0 8px 40px var(--shadow-lg);border:1.5px solid rgba(249,200,212,0.3);
+    position:relative;overflow:hidden;margin-bottom:24px;
+  }
+  .result-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:radial-gradient(ellipse at top,rgba(249,200,212,0.2) 0%,transparent 60%),
+               radial-gradient(ellipse at bottom right,rgba(213,196,240,0.15) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .result-emoji{font-size:60px;margin-bottom:16px;animation:bob 2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .result-type{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--lavender);margin-bottom:8px;}
+  .result-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:var(--text-dark);margin-bottom:12px;}
+  .result-title em{color:var(--rose);font-style:italic;}
+  .result-desc{font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:24px;}
+  .result-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+  .result-tag{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;}
+  .tag-pink{background:rgba(249,200,212,0.3);color:var(--rose);}
+  .tag-lilac{background:rgba(213,196,240,0.3);color:var(--lavender);}
+  .tag-mint{background:rgba(196,237,224,0.3);color:var(--sage);}
+  .tag-butter{background:rgba(250,240,200,0.5);color:#A09040;}
+  .suggestions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .suggestion-card{background:white;border-radius:16px;padding:16px;box-shadow:0 2px 12px var(--shadow);border:1.5px solid rgba(249,200,212,0.2);}
+  .suggestion-card h4{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--lavender);margin-bottom:10px;}
+  .suggestion-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-mid);margin-bottom:6px;line-height:1.3;}
+  .suggestion-item span{font-size:14px;}
+
+  /* PLANNER */
+  .planner-header{padding:0 16px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .date-badge{
+    background:linear-gradient(135deg,var(--blush),var(--peach));
+    border-radius:16px;padding:10px 16px;text-align:center;
+    box-shadow:0 4px 16px rgba(249,200,212,0.4);
+  }
+  .date-badge .month{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--rose);}
+  .date-badge .day{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:var(--text-dark);line-height:1;}
+  .countdown-wrap{text-align:right;}
+  .countdown-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:600;color:var(--lavender);line-height:1;}
+  .countdown-label{font-size:11px;color:var(--text-light);font-weight:500;}
+  .timeline{padding:0 16px;position:relative;}
+  .timeline::before{content:'';position:absolute;left:36px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--blush),var(--lilac),var(--mint));border-radius:2px;}
+  .timeline-block{margin-bottom:24px;}
+  .timeline-time-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);padding-left:56px;margin-bottom:10px;}
+  .timeline-item{display:flex;align-items:flex-start;gap:16px;position:relative;margin-bottom:12px;}
+  .timeline-dot{width:20px;height:20px;border-radius:50%;background:white;border:3px solid var(--blush);flex-shrink:0;margin-top:8px;z-index:1;box-shadow:0 2px 8px rgba(249,200,212,0.4);transition:all 0.2s;display:flex;align-items:center;justify-content:center;font-size:8px;}
+  .timeline-dot.afternoon{border-color:var(--lilac);}
+  .timeline-dot.evening{border-color:var(--lavender);}
+  .timeline-dot.done{background:var(--blush);}
+  .timeline-card{flex:1;background:white;border-radius:18px;padding:14px 16px;box-shadow:0 2px 16px var(--shadow);border:1.5px solid rgba(249,200,212,0.2);transition:all 0.25s;position:relative;}
+  .timeline-card:hover{transform:translateX(4px);box-shadow:0 4px 24px var(--shadow-lg);}
+  .timeline-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .timeline-card-time{font-size:11px;font-weight:600;color:var(--rose);}
+  .timeline-card-emoji{font-size:18px;}
+  .timeline-card-title{font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:4px;}
+  .timeline-card-meta{font-size:11px;color:var(--text-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .timeline-card-meta span{display:flex;align-items:center;gap:3px;}
+  .timeline-card-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity 0.2s;}
+  .timeline-card:hover .timeline-card-actions{opacity:1;}
+  .card-action-btn{background:rgba(249,200,212,0.2);border:none;border-radius:8px;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s;}
+  .card-action-btn:hover{background:rgba(249,200,212,0.5);}
+  .add-activity-btn{
+    display:flex;align-items:center;gap:12px;background:white;
+    border:2px dashed rgba(213,196,240,0.4);border-radius:18px;
+    padding:14px 16px;cursor:pointer;transition:all 0.25s;
+    width:calc(100% - 36px);color:var(--lavender);font-family:'DM Sans',sans-serif;
+    font-size:13px;font-weight:500;margin-left:36px;
+  }
+  .add-activity-btn:hover{border-color:var(--lilac);background:rgba(213,196,240,0.05);}
+
+  /* THEME */
+  .theme-page{padding:0 16px 32px;}
+  .theme-preview{border-radius:24px;overflow:hidden;margin-bottom:24px;box-shadow:0 8px 40px var(--shadow-lg);position:relative;}
+  .theme-preview-inner{padding:32px 24px;text-align:center;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;}
+  .theme-preview-name{font-family:'Sacramento',cursive;font-size:36px;line-height:1;}
+  .theme-preview-date{font-size:13px;opacity:0.7;font-weight:500;}
+  .theme-preview-tag{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .theme-presets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+  .theme-preset{border-radius:18px;padding:16px;cursor:pointer;border:2.5px solid transparent;transition:all 0.25s;position:relative;}
+  .theme-preset.active{border-color:var(--rose);box-shadow:0 4px 20px rgba(232,160,176,0.3);}
+  .theme-preset-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+  .theme-preset-desc{font-size:11px;opacity:0.7;}
+  .theme-preset-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;background:var(--rose);color:white;display:flex;align-items:center;justify-content:center;font-size:9px;opacity:0;transition:opacity 0.2s;}
+  .theme-preset.active .theme-preset-check{opacity:1;}
+  .palette-section{margin-bottom:24px;}
+  .palette-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;}
+  .palette-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+  .swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px var(--shadow);}
+  .swatch.active{border-color:var(--text-dark);transform:scale(1.15);}
+  .swatch:hover:not(.active){transform:scale(1.1);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(249,200,212,0.3);}
+  .toggle-label{font-size:13px;color:var(--text-mid);}
+  .toggle{width:40px;height:22px;background:rgba(213,196,240,0.3);border-radius:11px;position:relative;cursor:pointer;transition:all 0.25s;}
+  .toggle.on{background:linear-gradient(135deg,var(--rose),var(--lavender));}
+  .toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:white;top:3px;left:3px;transition:all 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+  .toggle.on::after{left:21px;}
+
+  /* MESSAGES SECTION */
+  .message-card{background:white;border-radius:18px;padding:16px;box-shadow:0 2px 12px var(--shadow);border:1.5px solid rgba(249,200,212,0.2);margin-bottom:10px;}
+  .msg-sender-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .msg-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--lilac));display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .msg-sender-name{font-size:13px;font-weight:500;color:var(--text-dark);}
+  .msg-meta{font-size:10px;color:var(--text-light);}
+  .msg-body{font-size:13px;color:var(--text-mid);line-height:1.6;background:rgba(249,200,212,0.1);border-radius:12px;padding:10px 12px;}
+  .msg-locked{font-style:italic;color:var(--text-light);}
+
+  /* MODAL */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(74,48,69,0.3);
+    backdrop-filter:blur(6px);z-index:200;align-items:flex-end;justify-content:center;
+  }
+  .modal-overlay.open{display:flex;animation:overlay-in 0.3s ease;}
+  @keyframes overlay-in{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:white;border-radius:28px 28px 0 0;padding:28px 20px 40px;
+    width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+    animation:modal-up 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modal-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-handle{width:36px;height:4px;background:rgba(213,196,240,0.5);border-radius:4px;margin:0 auto 20px;}
+  .modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);margin-bottom:20px;}
+  .form-group{margin-bottom:16px;}
+  .form-label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;}
+  .form-input{
+    width:100%;background:rgba(249,200,212,0.1);border:1.5px solid rgba(213,196,240,0.4);
+    border-radius:14px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;
+    color:var(--text-dark);transition:all 0.2s;outline:none;
+  }
+  .form-input:focus{border-color:var(--lilac);background:white;box-shadow:0 0 0 3px rgba(213,196,240,0.2);}
+  .form-input::placeholder{color:var(--text-light);}
+  .emoji-upload-zone{border:2px dashed rgba(213,196,240,0.5);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all 0.25s;color:var(--lavender);font-size:13px;position:relative;overflow:hidden;}
+  .emoji-upload-zone:hover{border-color:var(--lilac);background:rgba(213,196,240,0.08);}
+  .emoji-upload-zone .upload-icon{font-size:32px;display:block;margin-bottom:8px;}
+  .emoji-upload-zone img{width:100%;height:120px;object-fit:cover;border-radius:10px;display:none;}
+  .cat-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .cat-btn{
+    background:rgba(249,200,212,0.15);border:1.5px solid rgba(249,200,212,0.3);
+    border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;
+    transition:all 0.2s;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--text-mid);
+  }
+  .cat-btn.active{background:linear-gradient(135deg,var(--blush),var(--lilac));border-color:transparent;color:var(--text-dark);}
+
+  /* PROFILE DROPDOWN */
+  .profile-menu{
+    position:absolute;top:64px;right:12px;background:white;border-radius:18px;
+    padding:8px;min-width:180px;box-shadow:0 8px 40px var(--shadow-lg);
+    border:1.5px solid rgba(249,200,212,0.3);z-index:200;
+    display:none;animation:menu-in 0.2s ease;
+  }
+  .profile-menu.open{display:block;}
+  @keyframes menu-in{from{opacity:0;transform:translateY(-8px) scale(0.96)}to{opacity:1;transform:none}}
+  .profile-menu-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
+    cursor:pointer;font-size:13px;color:var(--text-mid);transition:all 0.15s;
+  }
+  .profile-menu-item:hover{background:rgba(249,200,212,0.2);color:var(--text-dark);}
+  .profile-menu-item.danger{color:#C06070;}
+  .profile-menu-item.danger:hover{background:rgba(249,200,212,0.3);}
+  .profile-menu-divider{height:1px;background:rgba(213,196,240,0.3);margin:4px 0;}
+
+  /* TOAST */
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(80px);
+    background:var(--text-dark);color:white;
+    padding:12px 20px;border-radius:20px;font-size:13px;font-weight:500;
+    z-index:999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space:nowrap;display:flex;align-items:center;gap:8px;
+    box-shadow:0 4px 20px rgba(74,48,69,0.3);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  /* SAVING INDICATOR */
+  .saving-dot{
+    width:6px;height:6px;border-radius:50%;background:var(--mint);
+    display:inline-block;margin-left:6px;
+    animation:blink 1s ease-in-out infinite;
+    opacity:0;transition:opacity 0.3s;
+  }
+  .saving-dot.visible{opacity:1;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  .bottom-spacer{height:32px;}
+
+  @media(min-width:480px){
+    body{display:flex;justify-content:center;background:#F0E8F0;}
+    nav{max-width:480px;left:50%;transform:translateX(-50%);width:480px;}
+    .page{max-width:480px;margin:0 auto;}
+    .profile-menu{right:calc(50% - 230px);}
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-logo">whimsy</div>
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+</div>
+
+<div class="particles" id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">whimsy <span class="saving-dot" id="saving-dot"></span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">🏠</button>
+    <button class="nav-tab" onclick="showPage('wishlist')">🎁</button>
+    <button class="nav-tab" onclick="showPage('planner')">🗓</button>
+    <button class="nav-tab" onclick="showPage('quiz')">✨</button>
+    <button class="nav-tab" onclick="showPage('theme')">🎨</button>
+  </div>
+  <div class="nav-right">
+    <button class="nav-avatar" id="nav-avatar" onclick="toggleProfileMenu()">🌷</button>
+  </div>
+</nav>
+
+<!-- Profile menu -->
+<div class="profile-menu" id="profile-menu">
+  <div class="profile-menu-item" onclick="copyShareLink()">🔗 Copy Share Link</div>
+  <div class="profile-menu-item" onclick="viewPublicPage()">🌸 View Public Page</div>
+  <div class="profile-menu-divider"></div>
+  <div class="profile-menu-item danger" onclick="handleLogout()">👋 Sign Out</div>
+</div>
+
+<!-- ═══ HOME PAGE ═══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+    <div class="hero-blob hero-blob-3"></div>
+    <div class="hero-eyebrow">✦ Your Birthday Universe ✦</div>
+    <h1>Hello, <em id="hero-name">there</em> 🌸</h1>
+    <p class="hero-sub" id="hero-sub">Loading your dream space...</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="showPage('wishlist')">🎁 View Wishlist</button>
+      <button class="btn-secondary" onclick="copyShareLink()">🔗 Share Page</button>
+    </div>
+  </div>
+
+  <div class="identity-card">
+    <div class="identity-avatar" id="home-avatar">🌷</div>
+    <div class="identity-info" style="flex:1">
+      <div class="identity-badge" id="home-vibe-badge">✦ Birthday Star</div>
+      <h3 id="home-page-title">Your Whimsy Page</h3>
+      <div class="identity-meta" id="home-bday-meta">🎂 Loading...</div>
+      <div class="share-link">
+        <span id="share-url-text">whimsy.app/u/...</span>
+        <button class="share-copy" onclick="copyShareLink()">Copy ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-wishes">0</div>
+      <div class="stat-label">Wishes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-reserved">0</div>
+      <div class="stat-label">Reserved 🤫</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-messages">0</div>
+      <div class="stat-label">Messages 💌</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Today's <span>Inspo</span> ✨</div>
+  </div>
+  <div style="padding:0 16px 24px;display:grid;gap:10px;">
+    <div style="background:linear-gradient(135deg,rgba(249,200,212,0.3),rgba(213,196,240,0.3));border-radius:20px;padding:18px;border:1.5px solid rgba(249,200,212,0.4);">
+      <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--lavender);margin-bottom:6px;">✦ Vibe Check</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--text-dark);font-style:italic;line-height:1.5;" id="daily-quote">"A birthday isn't just a day — it's a feeling you get to design."</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div onclick="showPage('planner')" style="background:white;border-radius:18px;padding:16px;box-shadow:0 2px 16px var(--shadow);cursor:pointer;border:1.5px solid rgba(249,200,212,0.2);">
+        <div style="font-size:24px;margin-bottom:8px;">🗓</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text-dark);margin-bottom:4px;">Day Planner</div>
+        <div style="font-size:11px;color:var(--text-light);" id="home-event-count">0 activities</div>
+      </div>
+      <div onclick="showPage('quiz')" style="background:white;border-radius:18px;padding:16px;box-shadow:0 2px 16px var(--shadow);cursor:pointer;border:1.5px solid rgba(249,200,212,0.2);">
+        <div style="font-size:24px;margin-bottom:8px;">✨</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text-dark);margin-bottom:4px;">Vibe Quiz</div>
+        <div style="font-size:11px;color:var(--text-light);" id="home-vibe-sub">Discover your style</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Friend <span>Messages</span> 💌</div>
+  </div>
+  <div id="home-messages-list" style="padding:0 16px 24px;">
+    <div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px;">Loading messages...</div>
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+
+<!-- ═══ WISHLIST PAGE ═══ -->
+<div class="page" id="page-wishlist">
+  <div style="padding:24px 16px 8px;display:flex;align-items:flex-start;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--text-dark);margin-bottom:4px;">My <em style="color:var(--rose);font-style:italic;">Wishlist</em> 🎁</div>
+      <div style="font-size:13px;color:var(--text-light);" id="wishlist-count-label">Loading...</div>
+    </div>
+  </div>
+
+  <div class="wishlist-filters">
+    <div class="filter-chip active" onclick="filterWish(this,'all')">All ✦</div>
+    <div class="filter-chip" onclick="filterWish(this,'dream')">💫 Dream</div>
+    <div class="filter-chip" onclick="filterWish(this,'cute')">🌸 Cute</div>
+    <div class="filter-chip" onclick="filterWish(this,'essential')">💎 Essential</div>
+  </div>
+
+  <div class="wishlist-grid" id="wishlist-grid"></div>
+  <div class="bottom-spacer"></div>
+</div>
+
+<!-- ═══ PLANNER PAGE ═══ -->
+<div class="page" id="page-planner">
+  <div style="padding:24px 16px 8px;">
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--text-dark);margin-bottom:4px;">Birthday <em style="color:var(--rose);font-style:italic;">Day Plan</em> 🗓</div>
+    <div style="font-size:13px;color:var(--text-light);">Design your perfect day, moment by moment</div>
+  </div>
+
+  <div class="planner-header">
+    <div class="date-badge" id="bday-badge">
+      <div class="month" id="bday-month">—</div>
+      <div class="day" id="bday-day">—</div>
+    </div>
+    <div class="countdown-wrap">
+      <div class="countdown-num" id="countdown-num">—</div>
+      <div class="countdown-label">days until magic ✨</div>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline-container">
+    <div style="text-align:center;padding:40px 0;color:var(--text-light);font-size:13px;">Loading your day plan...</div>
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+
+<!-- ═══ QUIZ PAGE ═══ -->
+<div class="page" id="page-quiz">
+  <div style="padding:24px 16px 8px;">
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--text-dark);margin-bottom:4px;">Discover Your <em style="color:var(--rose);font-style:italic;">Vibe</em> ✨</div>
+    <div style="font-size:13px;color:var(--text-light);">A quick quiz to reveal your birthday personality</div>
+  </div>
+  <div class="quiz-wrap" id="quiz-container"></div>
+</div>
+
+<!-- ═══ THEME PAGE ═══ -->
+<div class="page" id="page-theme">
+  <div style="padding:24px 16px 8px;">
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--text-dark);margin-bottom:4px;">Your <em style="color:var(--rose);font-style:italic;">Theme</em> 🎨</div>
+    <div style="font-size:13px;color:var(--text-light);">Customize how your birthday page looks to friends</div>
+  </div>
+
+  <div class="theme-page">
+    <div class="theme-preview" id="theme-preview-container">
+      <div class="theme-preview-inner" id="theme-preview-inner" style="background:linear-gradient(135deg,#F9C8D4,#D5C4F0,#C4EDE0);">
+        <div style="font-size:32px;margin-bottom:8px;" id="preview-avatar">🌷</div>
+        <div class="theme-preview-name" id="preview-name" style="color:#4A3045;">Your Birthday</div>
+        <div class="theme-preview-date" id="preview-date" style="color:#7A6080;">Loading...</div>
+        <div class="theme-preview-tag" id="preview-tag" style="background:rgba(255,255,255,0.5);color:#7A6080;margin-top:4px;">✦ Birthday Star ✦</div>
+        <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
+          <div style="position:absolute;top:10%;left:5%;font-size:20px;opacity:0.4;animation:float 4s ease-in-out infinite;">✦</div>
+          <div style="position:absolute;top:20%;right:8%;font-size:14px;opacity:0.3;animation:float 3s ease-in-out infinite 1s;">🌸</div>
+          <div style="position:absolute;bottom:15%;left:10%;font-size:18px;opacity:0.3;animation:float 5s ease-in-out infinite 0.5s;">✿</div>
+          <div style="position:absolute;bottom:20%;right:5%;font-size:12px;opacity:0.4;animation:float 3.5s ease-in-out infinite 1.5s;">✦</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">THEME PRESETS</div>
+    <div class="theme-presets" id="theme-presets">
+      <div class="theme-preset active" onclick="setTheme(this,'soft-girl')" style="background:linear-gradient(135deg,rgba(249,200,212,0.4),rgba(213,196,240,0.4));">
+        <div class="theme-preset-check">✓</div>
+        <div style="font-size:22px;margin-bottom:6px;">🌸</div>
+        <div class="theme-preset-name" style="color:var(--text-dark);">Soft Girl</div>
+        <div class="theme-preset-desc" style="color:var(--text-mid);">Blush pinks & lilacs</div>
+      </div>
+      <div class="theme-preset" onclick="setTheme(this,'fairycore')" style="background:linear-gradient(135deg,rgba(196,237,224,0.4),rgba(196,222,250,0.4));">
+        <div class="theme-preset-check">✓</div>
+        <div style="font-size:22px;margin-bottom:6px;">🧚</div>
+        <div class="theme-preset-name" style="color:var(--text-dark);">Fairycore</div>
+        <div class="theme-preset-desc" style="color:var(--text-mid);">Mint & dreamy sky</div>
+      </div>
+      <div class="theme-preset" onclick="setTheme(this,'minimal')" style="background:linear-gradient(135deg,rgba(250,240,200,0.5),rgba(250,216,196,0.4));">
+        <div class="theme-preset-check">✓</div>
+        <div style="font-size:22px;margin-bottom:6px;">🤍</div>
+        <div class="theme-preset-name" style="color:var(--text-dark);">Minimal Chic</div>
+        <div class="theme-preset-desc" style="color:var(--text-mid);">Warm butter tones</div>
+      </div>
+      <div class="theme-preset" onclick="setTheme(this,'celestial')" style="background:linear-gradient(135deg,rgba(184,160,220,0.4),rgba(196,222,250,0.4));">
+        <div class="theme-preset-check">✓</div>
+        <div style="font-size:22px;margin-bottom:6px;">🌙</div>
+        <div class="theme-preset-name" style="color:var(--text-dark);">Celestial</div>
+        <div class="theme-preset-desc" style="color:var(--text-mid);">Lavender starlight</div>
+      </div>
+    </div>
+
+    <div class="palette-section">
+      <div class="palette-label">Accent Color</div>
+      <div class="palette-swatches">
+        <div class="swatch active" style="background:#E8A0B0;" onclick="setSwatch(this,'#E8A0B0')"></div>
+        <div class="swatch" style="background:#B8A0DC;" onclick="setSwatch(this,'#B8A0DC')"></div>
+        <div class="swatch" style="background:#A0C8B0;" onclick="setSwatch(this,'#A0C8B0')"></div>
+        <div class="swatch" style="background:#A0B8DC;" onclick="setSwatch(this,'#A0B8DC')"></div>
+        <div class="swatch" style="background:#DCA070;" onclick="setSwatch(this,'#DCA070')"></div>
+        <div class="swatch" style="background:#C0A090;" onclick="setSwatch(this,'#C0A090')"></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <div class="palette-label">Background Elements</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="toggle-row"><div class="toggle-label">✦ Sparkles</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-label">☁️ Clouds</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-label">🌸 Petals</div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-label">🫧 Bubbles</div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;" onclick="saveTheme()">
+      Save Theme ✦
+    </button>
+  </div>
+  <div class="bottom-spacer"></div>
+</div>
+
+<!-- ═══ ADD GIFT MODAL ═══ -->
+<div class="modal-overlay" id="gift-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="gift-modal-title">Add a Wish ✨</div>
+    <input type="hidden" id="editing-gift-id">
+    <div class="form-group">
+      <label class="form-label">Photo (optional)</label>
+      <div class="emoji-upload-zone" id="upload-zone" onclick="triggerUpload()">
+        <span class="upload-icon" id="upload-icon">📸</span>
+        <span id="upload-text">Tap to add a photo</span>
+        <img id="upload-preview" src="" alt="">
+      </div>
+      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Gift Name *</label>
+      <input class="form-input" placeholder="e.g. Cloud Nine Perfume..." id="gift-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Price (optional)</label>
+      <input class="form-input" placeholder="₹1,500 or $20..." id="gift-price">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Product Link (optional)</label>
+      <input class="form-input" placeholder="https://..." id="gift-link">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" placeholder="Size, color, preference..." id="gift-notes">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <div class="cat-toggle" id="cat-toggle">
+        <div class="cat-btn active" onclick="setCat(this,'dream')">💫 Dream</div>
+        <div class="cat-btn" onclick="setCat(this,'cute')">🌸 Cute</div>
+        <div class="cat-btn" onclick="setCat(this,'essential')">💎 Essential</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <div class="toggle-label">🌍 Public (visible to friends)</div>
+        <div class="toggle on" id="toggle-public" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">🤫 Friends can reserve anonymously</div>
+        <div class="toggle on" id="toggle-surprise" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="gift-save-btn" onclick="saveGift()">
+      Add to Wishlist 🌸
+    </button>
+  </div>
+</div>
+
+<!-- ═══ ADD EVENT MODAL ═══ -->
+<div class="modal-overlay" id="event-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Activity ✦</div>
+    <input type="hidden" id="editing-event-id">
+    <div class="form-group">
+      <label class="form-label">Activity Name *</label>
+      <input class="form-input" placeholder="e.g. Sunrise walk..." id="event-title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Time *</label>
+      <input class="form-input" type="time" id="event-time">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Location</label>
+      <input class="form-input" placeholder="e.g. Lodhi Garden..." id="event-location">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Emoji / Vibe</label>
+      <input class="form-input" placeholder="e.g. 🌸 ☕ 🍰..." id="event-emoji" maxlength="4">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" placeholder="Outfit, details, vibe..." id="event-notes">
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveEvent()">
+      Add to Plan ✦
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">🌸</div>
+
+<script type="module">
+  // ─── FIREBASE IMPORTS ───
+  import { auth, db, storage } from './src/firebase-config.js';
+  import {
+    onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+    collection, query, where, orderBy, onSnapshot,
+    serverTimestamp, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import {
+    ref, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+  // ─── STATE ───
+  let currentUser = null;
+  let userProfile = null;
+  let wishlistItems = [];
+  let plannerEvents = [];
+  let messages = [];
+  let currentFilter = 'all';
+  let heartedItems = new Set(JSON.parse(localStorage.getItem('hearted') || '[]'));
+  let selectedTheme = 'soft-girl';
+  let selectedAccent = '#E8A0B0';
+  let uploadedImageUrl = null;
+  let quizAnswers = [];
+  let currentQ = 0;
+  let unsubWishlist = null;
+  let unsubPlanner = null;
+  let unsubMessages = null;
+
+  // ─── AUTH GUARD ───
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'auth.html'; return; }
+    currentUser = user;
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists() || !userDoc.data().username) {
+        window.location.href = 'setup.html'; return;
+      }
+      userProfile = userDoc.data();
+      initApp();
+    } catch(e) {
+      console.error(e);
+      showToast('⚠️ Error loading your profile');
+    }
+  });
+
+  function initApp() {
+    hideLoading();
+    applyUserData();
+    subscribeToWishlist();
+    subscribeToPlanner();
+    subscribeToMessages();
+    renderQuiz();
+    createParticles();
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+  }
+
+  function hideLoading() {
+    const ls = document.getElementById('loading-screen');
+    ls.classList.add('hidden');
+    setTimeout(() => ls.remove(), 600);
+  }
+
+  function applyUserData() {
+    const p = userProfile;
+    document.getElementById('nav-avatar').textContent = p.avatar || '🌷';
+    document.getElementById('hero-name').textContent = p.name?.split(' ')[0] || 'there';
+    document.getElementById('home-avatar').textContent = p.avatar || '🌷';
+    document.getElementById('home-page-title').textContent = `${p.name?.split(' ')[0] || 'Your'}'s Whimsy`;
+    document.getElementById('share-url-text').textContent = `whimsy.app/u/${p.username}`;
+    document.getElementById('preview-name').textContent = `${p.name?.split(' ')[0] || 'Your'}'s Birthday`;
+    document.getElementById('preview-avatar').textContent = p.avatar || '🌷';
+
+    if (p.vibeType) {
+      document.getElementById('home-vibe-badge').textContent = `✦ ${p.vibeType}`;
+      document.getElementById('preview-tag').textContent = `✦ ${p.vibeType} ✦`;
+      document.getElementById('home-vibe-sub').textContent = p.vibeType;
+    }
+
+    if (p.birthday) {
+      const bday = new Date(p.birthday + 'T00:00:00');
+      const formatted = bday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      document.getElementById('home-bday-meta').textContent = `🎂 ${formatted}`;
+      document.getElementById('preview-date').textContent = formatted;
+      document.getElementById('bday-month').textContent = bday.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+      document.getElementById('bday-day').textContent = bday.getDate();
+    }
+
+    if (p.theme) {
+      selectedTheme = p.theme;
+      document.querySelectorAll('.theme-preset').forEach(el => el.classList.remove('active'));
+      const activePreset = document.querySelector(`[onclick*="${p.theme}"]`);
+      if (activePreset) activePreset.classList.add('active');
+      applyThemePreview(p.theme);
+    }
+
+    if (p.accentColor) {
+      selectedAccent = p.accentColor;
+      document.querySelectorAll('.swatch').forEach(s => {
+        s.classList.toggle('active', s.style.background === p.accentColor);
+      });
+    }
+  }
+
+  // ─── REALTIME WISHLIST ───
+  function subscribeToWishlist() {
+    const q = query(collection(db, 'wishlists'), where('userId', '==', currentUser.uid));
+    unsubWishlist = onSnapshot(q, (snap) => {
+      wishlistItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      wishlistItems.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      renderWishlist();
+      updateStats();
+    });
+  }
+
+  // ─── REALTIME PLANNER ───
+  function subscribeToPlanner() {
+    const q = query(collection(db, 'planner'), where('userId', '==', currentUser.uid));
+    unsubPlanner = onSnapshot(q, (snap) => {
+      plannerEvents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      plannerEvents.sort((a,b) => (a.time||'').localeCompare(b.time||''));
+      renderPlanner();
+      document.getElementById('home-event-count').textContent = `${plannerEvents.length} activities`;
+    });
+  }
+
+  // ─── REALTIME MESSAGES ───
+  function subscribeToMessages() {
+    const q = query(collection(db, 'messages'), where('toUserId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+    unsubMessages = onSnapshot(q, (snap) => {
+      messages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderMessages();
+      document.getElementById('stat-messages').textContent = messages.length;
+    });
+  }
+
+  function updateStats() {
+    const pub = wishlistItems.filter(i => !i.private);
+    const reserved = wishlistItems.filter(i => i.reserved);
+    document.getElementById('stat-wishes').textContent = pub.length;
+    document.getElementById('stat-reserved').textContent = reserved.length;
+    const count = pub.length;
+    document.getElementById('wishlist-count-label').textContent = `${count} items${reserved.length ? ` · ${reserved.length} secretly reserved` : ''}`;
+  }
+
+  // ─── RENDER WISHLIST ───
+  window.renderWishlist = function() {
+    const grid = document.getElementById('wishlist-grid');
+    const items = wishlistItems.filter(i => currentFilter === 'all' || i.category === currentFilter);
+    let html = '';
+
+    items.forEach(item => {
+      const catLabel = { dream: '💫 Dream Gift', cute: '🌸 Cute Extra', essential: '💎 Essential' }[item.category] || '🎁 Gift';
+      const catClass = { dream: 'cat-dream', cute: 'cat-cute', essential: 'cat-essential' }[item.category] || '';
+      const hearted = heartedItems.has(item.id);
+      const imgHtml = item.imageUrl
+        ? `<img class="wish-img-real" src="${item.imageUrl}" alt="${item.name}" loading="lazy">`
+        : `<div class="wish-img-placeholder" style="background:${item.bg || 'linear-gradient(135deg,#F9C8D4,#D5C4F0)'}"><span style="font-size:44px;">🎁</span></div>`;
+
+      html += `
+        <div class="wish-card">
+          ${imgHtml}
+          <div class="wish-badges">
+            ${item.reserved ? '<div class="wish-badge badge-reserved">Reserved 🤫</div>' : ''}
+            ${item.surprise ? '<div class="wish-badge badge-surprise">Surprise</div>' : ''}
+            ${item.private ? '<div class="wish-badge badge-private">Private</div>' : ''}
+          </div>
+          <div class="wish-body">
+            <div class="wish-category ${catClass}">${catLabel}</div>
+            <div class="wish-name">${item.name}</div>
+            ${item.price ? `<div class="wish-price">${item.price}</div>` : ''}
+            <div class="wish-react">
+              <button class="react-btn ${hearted ? 'reacted' : ''}" onclick="heartItem(event,'${item.id}')">
+                ${hearted ? '💗' : '🤍'} ${(item.hearts || 0) + (hearted ? 1 : 0)}
+              </button>
+              <button class="react-btn" onclick="editGift(event,'${item.id}')">✏️</button>
+              <button class="react-btn" onclick="deleteGift(event,'${item.id}')">🗑</button>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    html += `<div class="add-gift-card" onclick="openAddGift()">
+      <div class="add-icon">✦</div>
+      <span>Add a wish</span>
+    </div>`;
+
+    grid.innerHTML = html;
+  };
+
+  window.heartItem = async (e, id) => {
+    e.stopPropagation();
+    spawnSparkle(e.clientX, e.clientY);
+    if (heartedItems.has(id)) {
+      heartedItems.delete(id);
+    } else {
+      heartedItems.add(id);
+      const item = wishlistItems.find(i => i.id === id);
+      if (item) {
+        await updateDoc(doc(db, 'wishlists', id), { hearts: (item.hearts || 0) + 1 });
+      }
+    }
+    localStorage.setItem('hearted', JSON.stringify([...heartedItems]));
+    renderWishlist();
+  };
+
+  window.editGift = (e, id) => {
+    e.stopPropagation();
+    const item = wishlistItems.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('editing-gift-id').value = id;
+    document.getElementById('gift-modal-title').textContent = 'Edit Wish ✨';
+    document.getElementById('gift-name').value = item.name || '';
+    document.getElementById('gift-price').value = item.price || '';
+    document.getElementById('gift-link').value = item.link || '';
+    document.getElementById('gift-notes').value = item.notes || '';
+    document.getElementById('gift-save-btn').textContent = 'Save Changes 🌸';
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    const catBtn = document.querySelector(`[onclick*="setCat"][onclick*="${item.category}"]`);
+    if (catBtn) catBtn.classList.add('active');
+    if (item.private) document.getElementById('toggle-public').classList.remove('on');
+    else document.getElementById('toggle-public').classList.add('on');
+    if (item.surprise) document.getElementById('toggle-surprise').classList.add('on');
+    else document.getElementById('toggle-surprise').classList.remove('on');
+    document.getElementById('gift-modal').classList.add('open');
+  };
+
+  window.deleteGift = async (e, id) => {
+    e.stopPropagation();
+    if (!confirm('Remove this wish from your list?')) return;
+    try {
+      await deleteDoc(doc(db, 'wishlists', id));
+      showToast('✦ Wish removed');
+    } catch(err) {
+      showToast('⚠️ Could not delete');
+    }
+  };
+
+  window.filterWish = (el, cat) => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = cat;
+    renderWishlist();
+  };
+
+  window.openAddGift = () => {
+    document.getElementById('editing-gift-id').value = '';
+    document.getElementById('gift-modal-title').textContent = 'Add a Wish ✨';
+    document.getElementById('gift-name').value = '';
+    document.getElementById('gift-price').value = '';
+    document.getElementById('gift-link').value = '';
+    document.getElementById('gift-notes').value = '';
+    document.getElementById('gift-save-btn').textContent = 'Add to Wishlist 🌸';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('upload-icon').style.display = 'block';
+    document.getElementById('upload-text').style.display = 'block';
+    uploadedImageUrl = null;
+    document.querySelectorAll('.cat-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.getElementById('toggle-public').classList.add('on');
+    document.getElementById('toggle-surprise').classList.add('on');
+    document.getElementById('gift-modal').classList.add('open');
+  };
+
+  window.triggerUpload = () => document.getElementById('file-input').click();
+
+  window.handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('upload-preview');
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.getElementById('upload-icon').style.display = 'none';
+      document.getElementById('upload-text').textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const storageRef = ref(storage, `wishlists/${currentUser.uid}/${Date.now()}_${file.name}`);
+      showSaving(true);
+      const snapshot = await uploadBytes(storageRef, file);
+      uploadedImageUrl = await getDownloadURL(snapshot.ref);
+      showSaving(false);
+      showToast('📸 Image uploaded!');
+    } catch(err) {
+      showSaving(false);
+      showToast('⚠️ Image upload failed. Saving without image.');
+    }
+  };
+
+  window.saveGift = async () => {
+    const name = document.getElementById('gift-name').value.trim();
+    if (!name) { showToast('🌸 Please enter a gift name!'); return; }
+    const activeCat = document.querySelector('#cat-toggle .cat-btn.active');
+    const isPublic = document.getElementById('toggle-public').classList.contains('on');
+    const isSurprise = document.getElementById('toggle-surprise').classList.contains('on');
+    const editingId = document.getElementById('editing-gift-id').value;
+    const colors = ['linear-gradient(135deg,#F9C8D4,#FAD8C4)','linear-gradient(135deg,#D5C4F0,#C4DEFA)','linear-gradient(135deg,#FAF0C8,#FAD8C4)','linear-gradient(135deg,#C4EDE0,#C4DEFA)'];
+
+    const data = {
+      userId: currentUser.uid,
+      name,
+      price: document.getElementById('gift-price').value.trim(),
+      link: document.getElementById('gift-link').value.trim(),
+      notes: document.getElementById('gift-notes').value.trim(),
+      category: activeCat?.dataset?.cat || 'cute',
+      private: !isPublic,
+      surprise: isSurprise,
+      bg: colors[Math.floor(Math.random() * colors.length)],
+      reserved: false,
+      hearts: 0,
+      updatedAt: serverTimestamp()
+    };
+    if (uploadedImageUrl) data.imageUrl = uploadedImageUrl;
+
+    showSaving(true);
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'wishlists', editingId), data);
+        showToast('✨ Wish updated!');
+      } else {
+        data.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'wishlists'), data);
+        showToast('🎁 Added to your wishlist!');
+      }
+      closeAllModals();
+      uploadedImageUrl = null;
+    } catch(err) {
+      showToast('⚠️ Could not save. Please try again.');
+    }
+    showSaving(false);
+  };
+
+  window.setCat = (el, cat) => {
+    document.querySelectorAll('#cat-toggle .cat-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    el.dataset.cat = cat;
+  };
+
+  // ─── PLANNER ───
+  function renderPlanner() {
+    const container = document.getElementById('timeline-container');
+    if (!plannerEvents.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:40px 0 20px;color:var(--text-light);font-size:13px;">No activities yet — start planning! 🌸</div>
+        <button class="add-activity-btn" style="margin:0 0 20px 36px;" onclick="document.getElementById('event-modal').classList.add('open')">+ Add First Activity</button>`;
+      return;
+    }
+
+    const groups = { morning: [], afternoon: [], evening: [] };
+    plannerEvents.forEach(ev => {
+      const h = parseInt(ev.time?.split(':')?.[0] || '12');
+      if (h < 12) groups.morning.push(ev);
+      else if (h < 17) groups.afternoon.push(ev);
+      else groups.evening.push(ev);
+    });
+
+    const labels = { morning: '🌅 Morning', afternoon: '☀️ Afternoon', evening: '🌙 Evening' };
+    const dotClasses = { morning: '', afternoon: 'afternoon', evening: 'evening' };
+    let html = '';
+
+    Object.entries(groups).forEach(([period, evs]) => {
+      if (!evs.length) return;
+      html += `<div class="timeline-block"><div class="timeline-time-label">${labels[period]}</div>`;
+      evs.forEach(ev => {
+        html += `
+          <div class="timeline-item">
+            <div class="timeline-dot ${dotClasses[period]}">•</div>
+            <div class="timeline-card">
+              <div class="timeline-card-actions">
+                <button class="card-action-btn" onclick="editEvent('${ev.id}')">✏️</button>
+                <button class="card-action-btn" onclick="deleteEvent('${ev.id}')">🗑</button>
+              </div>
+              <div class="timeline-card-header">
+                <div class="timeline-card-time">${formatTime(ev.time)}</div>
+                <div class="timeline-card-emoji">${ev.emoji || '✨'}</div>
+              </div>
+              <div class="timeline-card-title">${ev.title}</div>
+              <div class="timeline-card-meta">
+                ${ev.location ? `<span>📍 ${ev.location}</span>` : ''}
+                ${ev.notes ? `<span>💭 ${ev.notes}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+      });
+      html += '</div>';
+    });
+
+    html += `<button class="add-activity-btn" onclick="document.getElementById('event-modal').classList.add('open')">+ Add Activity</button>`;
+    container.innerHTML = html;
+  }
+
+  function formatTime(time24) {
+    if (!time24) return '';
+    const [h, m] = time24.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${h % 12 || 12}:${m.toString().padStart(2,'0')} ${ampm}`;
+  }
+
+  window.saveEvent = async () => {
+    const title = document.getElementById('event-title').value.trim();
+    const time = document.getElementById('event-time').value;
+    if (!title) { showToast('🌸 Please enter an activity name'); return; }
+    if (!time) { showToast('🌸 Please select a time'); return; }
+
+    const editingId = document.getElementById('editing-event-id').value;
+    const data = {
+      userId: currentUser.uid,
+      title,
+      time,
+      location: document.getElementById('event-location').value.trim(),
+      emoji: document.getElementById('event-emoji').value.trim() || '✨',
+      notes: document.getElementById('event-notes').value.trim(),
+      updatedAt: serverTimestamp()
+    };
+
+    showSaving(true);
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'planner', editingId), data);
+        showToast('✨ Activity updated!');
+      } else {
+        data.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'planner'), data);
+        showToast('🗓 Added to your plan!');
+      }
+      closeAllModals();
+      document.getElementById('editing-event-id').value = '';
+    } catch(err) {
+      showToast('⚠️ Could not save. Please try again.');
+    }
+    showSaving(false);
+  };
+
+  window.editEvent = (id) => {
+    const ev = plannerEvents.find(e => e.id === id);
+    if (!ev) return;
+    document.getElementById('editing-event-id').value = id;
+    document.getElementById('event-title').value = ev.title || '';
+    document.getElementById('event-time').value = ev.time || '';
+    document.getElementById('event-location').value = ev.location || '';
+    document.getElementById('event-emoji').value = ev.emoji || '';
+    document.getElementById('event-notes').value = ev.notes || '';
+    document.getElementById('event-modal').classList.add('open');
+  };
+
+  window.deleteEvent = async (id) => {
+    if (!confirm('Remove this activity?')) return;
+    try {
+      await deleteDoc(doc(db, 'planner', id));
+      showToast('✦ Activity removed');
+    } catch { showToast('⚠️ Could not delete'); }
+  };
+
+  // ─── MESSAGES ───
+  function renderMessages() {
+    const container = document.getElementById('home-messages-list');
+    if (!messages.length) {
+      container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No messages yet. Share your page to get birthday wishes! 🌸</div>`;
+      return;
+    }
+    const avatarEmojis = ['🌸', '🌿', '🦋', '🌺', '✨', '🎀', '🌙', '💫'];
+    container.innerHTML = messages.slice(0, 5).map((msg, i) => {
+      const isLocked = msg.lockedUntilBirthday && !isBirthday();
+      return `
+        <div class="message-card">
+          <div class="msg-sender-row">
+            <div class="msg-avatar">${avatarEmojis[i % avatarEmojis.length]}</div>
+            <div>
+              <div class="msg-sender-name">${msg.senderName || 'Anonymous Friend'}</div>
+              <div class="msg-meta">${isLocked ? 'Unlocks on your birthday 🔒' : formatMsgDate(msg.createdAt)}</div>
+            </div>
+          </div>
+          <div class="msg-body ${isLocked ? 'msg-locked' : ''}">${isLocked ? '✦ This message unlocks on your birthday...' : msg.message}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function isBirthday() {
+    if (!userProfile?.birthday) return false;
+    const today = new Date();
+    const bday = new Date(userProfile.birthday + 'T00:00:00');
+    return today.getMonth() === bday.getMonth() && today.getDate() === bday.getDate();
+  }
+
+  function formatMsgDate(ts) {
+    if (!ts) return 'Just now';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Date.now() - d.getTime();
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+    return `${Math.floor(diff/86400000)}d ago`;
+  }
+
+  // ─── COUNTDOWN ───
+  function updateCountdown() {
+    if (!userProfile?.birthday) return;
+    const today = new Date();
+    const bday = new Date(userProfile.birthday + 'T00:00:00');
+    const thisYear = new Date(today.getFullYear(), bday.getMonth(), bday.getDate());
+    if (thisYear < today) thisYear.setFullYear(today.getFullYear() + 1);
+    const diff = Math.ceil((thisYear - today) / (1000*60*60*24));
+    const el = document.getElementById('countdown-num');
+    if (el) el.textContent = diff === 0 ? '🎂' : diff;
+    const sub = document.getElementById('hero-sub');
+    if (sub) {
+      if (diff === 0) sub.textContent = 'Happy Birthday! Today is your magical day! 🎂✨';
+      else sub.textContent = `Your dream birthday is ${diff} day${diff===1?'':'s'} away. Here's your magical space to plan every perfect moment.`;
+    }
+  }
+
+  // ─── QUIZ ───
+  const questions = [
+    { q:'How do you want to feel on your birthday?', sub:'Pick the vibe that resonates most deeply with you',
+      options:[{emoji:'🌿',label:'Peaceful & Held',desc:'Cozy, quiet, cherished'},{emoji:'💫',label:'Magical & Surprised',desc:'Unexpected moments, wonder'},{emoji:'🎉',label:'Celebrated & Seen',desc:'Energy, attention, joy'},{emoji:'🌸',label:'Loved & Soft',desc:'Gentle warmth, closeness'}]},
+    { q:'Your ideal birthday crew?', sub:'Who do you want around you on your special day?',
+      options:[{emoji:'🪞',label:'Solo or just me',desc:'Peaceful self-celebration'},{emoji:'🌸',label:'2–3 close friends',desc:'Intimate & meaningful'},{emoji:'🌿',label:'A small gathering',desc:'6–10 people, cozy vibes'},{emoji:'🎊',label:'Big party energy!',desc:'The more the merrier'}]},
+    { q:'What aesthetic feels most like you?', sub:'Close your eyes and feel which one pulls you',
+      options:[{emoji:'🌸',label:'Soft & Dreamy',desc:'Pastels, florals, gentle light'},{emoji:'🧚',label:'Fairycore Magic',desc:'Whimsical, nature, ethereal'},{emoji:'🤍',label:'Minimal Chic',desc:'Clean, refined, effortless'},{emoji:'🌙',label:'Celestial & Moody',desc:'Stars, velvet, mystery'}]},
+    { q:'Your birthday must-have is...', sub:"The non-negotiable that makes it feel like YOUR day",
+      options:[{emoji:'🎂',label:'The perfect cake',desc:"It has to be beautiful"},{emoji:'📸',label:'Photos everywhere',desc:'Memories captured forever'},{emoji:'🎁',label:'Thoughtful gifts',desc:'Gifts that show you know me'},{emoji:'💌',label:'Heartfelt words',desc:'Messages that touch my soul'}]}
+  ];
+
+  const vibeResults = {
+    '0-0':'Cozy Dreamer','0-1':'Surprise Lover','0-2':'Main Character','0-3':'Heartfelt Soul',
+    '1-0':'Soft Soloist','1-1':'Intimate Celebrant','1-2':'Social Butterfly','1-3':'Party Queen',
+    '2-0':'Soft Girl','2-1':'Fairycore Witch','2-2':'Minimalist Muse','2-3':'Celestial Being',
+    '3-0':'Cake Artist','3-1':'Memory Keeper','3-2':'Gift Lover','3-3':'Words Person',
+    default:'Birthday Dreamer'
+  };
+
+  window.renderQuiz = function() {
+    const container = document.getElementById('quiz-container');
+    if (currentQ >= questions.length) { renderResult(); return; }
+    const q = questions[currentQ];
+    const pct = Math.round((currentQ / questions.length) * 100);
+    container.innerHTML = `
+      <div class="quiz-progress">
+        <div class="quiz-bar"><div class="quiz-bar-fill" style="width:${pct}%"></div></div>
+        <div class="quiz-step">${currentQ + 1} / ${questions.length}</div>
+      </div>
+      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-sub">${q.sub}</div>
+      <div class="quiz-options">
+        ${q.options.map((o,i) => `
+          <div class="quiz-option" onclick="selectQuizOption(this,${i})">
+            <div class="quiz-option-emoji">${o.emoji}</div>
+            <div class="quiz-option-text"><strong>${o.label}</strong><small>${o.desc}</small></div>
+            <div class="quiz-check">✓</div>
+          </div>`).join('')}
+      </div>`;
+  };
+
+  window.selectQuizOption = (el, idx) => {
+    document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    spawnSparkle(el.getBoundingClientRect().left + 20, el.getBoundingClientRect().top + 20);
+    setTimeout(() => {
+      quizAnswers[currentQ] = idx;
+      currentQ++;
+      renderQuiz();
+    }, 380);
+  };
+
+  function renderResult() {
+    const key = `${quizAnswers[0]}-${quizAnswers[1]}`;
+    const vibeType = vibeResults[key] || vibeResults.default;
+    const emojiMap = { 'Cozy Dreamer':'🌷','Surprise Lover':'✨','Main Character':'🌟','Heartfelt Soul':'💌','Soft Soloist':'🪞','Intimate Celebrant':'🌸','Social Butterfly':'🦋','Party Queen':'🎊','Soft Girl':'🌸','Fairycore Witch':'🧚','Minimalist Muse':'🤍','Celestial Being':'🌙','Birthday Dreamer':'💫' };
+    const emoji = emojiMap[vibeType] || '✨';
+    document.getElementById('quiz-container').innerHTML = `
+      <div class="result-card">
+        <div class="result-emoji">${emoji}</div>
+        <div class="result-type">✦ Your Birthday Identity ✦</div>
+        <div class="result-title">You're a <em>${vibeType}</em></div>
+        <div class="result-desc">Your birthday personality is uniquely yours — a beautiful blend of how you love to be celebrated and what makes your heart feel full.</div>
+        <div class="result-tags">
+          <div class="result-tag tag-pink">${vibeType}</div>
+          <div class="result-tag tag-lilac">Birthday Magic</div>
+          <div class="result-tag tag-mint">Authentic Vibes</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button class="btn-primary" style="flex:1;justify-content:center;" onclick="applyVibe('${vibeType}','${emoji}')">Save My Vibe ✦</button>
+        <button class="btn-secondary" onclick="retakeQuiz()">Retake</button>
+      </div>`;
+  }
+
+  window.applyVibe = async (vibeType, emoji) => {
+    showSaving(true);
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), { vibeType, updatedAt: serverTimestamp() });
+      userProfile.vibeType = vibeType;
+      document.getElementById('home-vibe-badge').textContent = `✦ ${vibeType}`;
+      document.getElementById('preview-tag').textContent = `✦ ${vibeType} ✦`;
+      document.getElementById('home-vibe-sub').textContent = vibeType;
+      showToast(`✨ Your vibe is saved: ${vibeType}!`);
+      setTimeout(() => showPage('home'), 1000);
+    } catch { showToast('⚠️ Could not save vibe'); }
+    showSaving(false);
+  };
+
+  window.retakeQuiz = () => { currentQ = 0; quizAnswers = []; renderQuiz(); };
+
+  // ─── THEME ───
+  const themeConfigs = {
+    'soft-girl':{ bg:'linear-gradient(135deg,#F9C8D4,#D5C4F0,#C4EDE0)', color:'#4A3045' },
+    'fairycore':{ bg:'linear-gradient(135deg,#C4EDE0,#C4DEFA,#D5C4F0)', color:'#2A4040' },
+    'minimal':{ bg:'linear-gradient(135deg,#FAF0C8,#FAD8C4,#FFF8F5)', color:'#4A3820' },
+    'celestial':{ bg:'linear-gradient(135deg,#B8A0DC,#C4DEFA,#D5C4F0)', color:'#2A2050' }
+  };
+
+  function applyThemePreview(key) {
+    const cfg = themeConfigs[key];
+    if (!cfg) return;
+    document.getElementById('theme-preview-inner').style.background = cfg.bg;
+    document.getElementById('preview-name').style.color = cfg.color;
+  }
+
+  window.setTheme = (el, key) => {
+    document.querySelectorAll('.theme-preset').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    selectedTheme = key;
+    applyThemePreview(key);
+    showToast('🎨 Theme preview updated!');
+  };
+
+  window.setSwatch = (el, color) => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    selectedAccent = color;
+    document.documentElement.style.setProperty('--rose', color);
+    showToast('✨ Accent color updated!');
+  };
+
+  window.saveTheme = async () => {
+    showSaving(true);
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        theme: selectedTheme,
+        accentColor: selectedAccent,
+        updatedAt: serverTimestamp()
+      });
+      showToast('🎨 Theme saved! Your page looks dreamy.');
+    } catch { showToast('⚠️ Could not save theme'); }
+    showSaving(false);
+  };
+
+  // ─── NAVIGATION ───
+  window.showPage = (id) => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    const tabMap = { home:0, wishlist:1, planner:2, quiz:3, theme:4 };
+    const tabs = document.querySelectorAll('.nav-tab');
+    if (tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('active');
+    closeProfileMenu();
+    window.scrollTo(0, 0);
+  };
+
+  // ─── PROFILE MENU ───
+  window.toggleProfileMenu = () => {
+    document.getElementById('profile-menu').classList.toggle('open');
+  };
+  function closeProfileMenu() {
+    document.getElementById('profile-menu').classList.remove('open');
+  }
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#profile-menu') && !e.target.closest('#nav-avatar')) closeProfileMenu();
+  });
+
+  window.handleLogout = async () => {
+    closeProfileMenu();
+    if (unsubWishlist) unsubWishlist();
+    if (unsubPlanner) unsubPlanner();
+    if (unsubMessages) unsubMessages();
+    await signOut(auth);
+    window.location.href = 'auth.html';
+  };
+
+  window.viewPublicPage = () => {
+    if (userProfile?.username) window.open(`public.html?u=${userProfile.username}`, '_blank');
+    closeProfileMenu();
+  };
+
+  // ─── SHARE ───
+  window.copyShareLink = () => {
+    const url = userProfile?.username ? `${window.location.origin}/public.html?u=${userProfile.username}` : window.location.href;
+    if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
+    showToast('🔗 Share link copied! ✨');
+    closeProfileMenu();
+  };
+
+  // ─── MODAL ───
+  window.closeModal = (e) => { if (e.target === e.currentTarget) closeAllModals(); };
+  function closeAllModals() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+  }
+
+  // ─── TOAST + SAVING ───
+  window.showToast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  };
+
+  function showSaving(state) {
+    document.getElementById('saving-dot').classList.toggle('visible', state);
+  }
+
+  // ─── SPARKLES ───
+  window.spawnSparkle = (x, y) => {
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    el.style.cssText = `left:${x}px;top:${y}px;position:fixed;z-index:9999;pointer-events:none;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  };
+
+  document.addEventListener('click', (e) => {
+    if (Math.random() > 0.75) spawnSparkle(e.clientX, e.clientY);
+  });
+
+  // ─── PARTICLES ───
+  function createParticles() {
+    const colors = ['#F9C8D4','#D5C4F0','#C4EDE0','#FAF0C8','#C4DEFA','#FAD8C4'];
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 4 + Math.random() * 12;
+      p.style.cssText = `width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${-Math.random()*20}s;`;
+      container.appendChild(p);
+    }
+  }
+
+  // ─── DAILY QUOTES ───
+  const quotes = [
+    '"A birthday isn\'t just a day — it\'s a feeling you get to design."',
+    '"You deserve every petal, every candle, every wish."',
+    '"The most magical day of the year is yours to create."',
+    '"Birthdays are love letters the universe writes just for you."',
+    '"Every year you bloom a little more beautifully."'
+  ];
+  document.getElementById('daily-quote').textContent = quotes[new Date().getDate() % quotes.length];
+</script>
+</body>
+</html>
