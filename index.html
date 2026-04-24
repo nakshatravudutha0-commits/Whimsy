@@ -779,6 +779,13 @@
 <div class="toast" id="toast">🌸</div>
 
 <script type="module">
+  // ─── SHARE LINK REDIRECT ───
+const params = new URLSearchParams(window.location.search);
+const sharedUser = params.get('u');
+
+if (sharedUser) {
+  window.location.href = `public.html?u=${sharedUser}`;
+}
   // ─── FIREBASE IMPORTS ───
   import { auth, db, storage } from './firebase-config.js';
   import {
