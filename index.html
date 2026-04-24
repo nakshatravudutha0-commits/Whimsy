@@ -1469,12 +1469,18 @@
   };
 
   // ─── SHARE ───
-  window.copyShareLink = () => {
-    const url = userProfile?.username ? `${window.location.origin}/public.html?u=${userProfile.username}` : window.location.href;
-    if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
-    showToast('🔗 Share link copied! ✨');
-    closeProfileMenu();
-  };
+window.copyShareLink = () => {
+  const url = userProfile?.username
+    ? `${window.location.origin}${window.location.pathname}?u=${userProfile.username}`
+    : window.location.href;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).catch(() => {});
+  }
+
+  showToast('🔗 Share link copied! ✨');
+  closeProfileMenu();
+};
 
   // ─── MODAL ───
   window.closeModal = (e) => { if (e.target === e.currentTarget) closeAllModals(); };
